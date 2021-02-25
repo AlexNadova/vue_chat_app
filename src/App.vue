@@ -1,28 +1,31 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <chat v-if="user"></chat>
+    <login v-else></login>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Login from "./components/Login.vue";
+import Chat from "./components/Chat.vue";
+import firebase from "firebase";
 
 export default {
   name: "App",
   components: {
-    HelloWorld
-  }
+    Login,
+    Chat,
+  },
+  data() {
+    return {
+      user: firebase.auth().currentUser,
+    };
+  },
 };
 </script>
 
 <style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  background-color: #313131;
 }
 </style>
