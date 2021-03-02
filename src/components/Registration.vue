@@ -58,13 +58,13 @@ export default {
   data() {
     return {
       signupForm: {
-        email: "alexandra7nadova@gmail.com",
-        password: "password",
-        fname: "Alex",
-        lname: "Nadova",
-        address: "SNP 340",
-        country: "Slovakia",
-        city: "Hran",
+        email: "",
+        password: "",
+        fname: "",
+        lname: "",
+        address: "",
+        country: "",
+        city: "",
       },
     };
   },

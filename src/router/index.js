@@ -34,6 +34,15 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/contacts",
+    name: "Contacts",
+    component: () =>
+      import(/* webpackChunkName: "contacts" */ "../views/ContactsView.vue"),
+    meta: {
+      requireAuth: true,
+    },
+  },
 ];
 
 const router = new VueRouter({

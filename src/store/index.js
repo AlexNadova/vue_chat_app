@@ -9,10 +9,22 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     user: {},
+    contacts: [],
+  },
+  getters: {
+    getUser(state) {
+      return state.user;
+    },
+    getContacts(state) {
+      return state.contacts;
+    },
   },
   mutations: {
     setUser(state, user) {
       state.user = user;
+    },
+    setContacts(state, contacts) {
+      state.contacts = contacts;
     },
   },
   actions: {
@@ -20,7 +32,7 @@ export default new Vuex.Store({
       const { user } = await auth
         .signInWithEmailAndPassword(form.email, form.password)
         .catch((e) => console.error(e));
-      dispatch("getUser", user);
+      dispatch("fetchUser", user);
     },
     async loginGoogle({ dispatch }) {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -28,11 +40,11 @@ export default new Vuex.Store({
       auth
         .getRedirectResult()
         .then((result) => {
-          dispatch("getUser", result);
+          dispatch("fetchUser", result);
         })
         .catch((error) => console.error(error));
     },
-    async getUser({ commit }, userInfo) {
+    async fetchUser({ commit }, userInfo) {
       const user = await userCollection
         .doc(userInfo.uid)
         .get()
@@ -54,7 +66,14 @@ export default new Vuex.Store({
       });
 
       // fetch user profile and set in state
-      dispatch("getUser", user);
+      dispatch("fetchUser", user);
+    },
+    async fetchContacts({ commit }) {
+      let contacts = [];
+      await userCollection.onSnapshot((querySnap) => {
+        contacts = querySnap.docs.map((doc) => doc.data());
+        commit("setContacts", contacts);
+      });
     },
   },
 });
