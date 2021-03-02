@@ -14,18 +14,25 @@ const routes = [
     },
   },
   {
-    path: "/login",
-    name: "Login",
+    path: "/auth",
     component: () =>
-      import(/* webpackChunkName: "login" */ "../components/Login.vue"),
-  },
-  {
-    path: "/registration",
-    name: "Registration",
-    component: () =>
-      import(
-        /* webpackChunkName: "registration" */ "../components/Registration.vue"
-      ),
+      import(/* webpackChunkName: "authView" */ "../views/AuthView.vue"),
+    children: [
+      {
+        path: "login",
+        name: "Login",
+        component: () =>
+          import(/* webpackChunkName: "login" */ "../components/Login.vue"),
+      },
+      {
+        path: "registration",
+        name: "Registration",
+        component: () =>
+          import(
+            /* webpackChunkName: "registration" */ "../components/Registration.vue"
+          ),
+      },
+    ],
   },
 ];
 
