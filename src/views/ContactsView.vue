@@ -17,6 +17,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch("fetchContacts");
+    this.$store.dispatch("fetchUsersChats");
   },
 };
 </script>

@@ -7,6 +7,6 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 const userCollection = db.collection("users");
-const messageCollection = db.collection("messages");
+const chatCollection = db.collection("chats");
 
-export { db, auth, userCollection, messageCollection };
+export { db, auth, userCollection, chatCollection };

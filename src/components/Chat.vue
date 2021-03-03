@@ -2,7 +2,7 @@
   <div class="wrapper">
     Chat component
     <header>
-      <h1>Chat with Firebase!</h1>
+      <h1>{{ $route.params.chatUid }}</h1>
       <button @click="logout">Logout</button>
     </header>
     <section>
@@ -10,9 +10,9 @@
         <div
           v-for="(msg, index) in messages"
           v-bind:key="'index-' + index"
-          :class="['message', sentOrReceived(msg.userUID)]"
+          :class="['message', sentOrReceived(msg.userUid)]"
         >
-          <img :src="msg.photoURL" :alt="msg.displayName" />
+          <img src="" alt="" />
           <p>{{ msg.text }}</p>
         </div>
         <div ref="scrollable"></div>
@@ -27,15 +27,17 @@
 
 <script>
 import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
     return {
-      user: firebase.auth().currentUser,
       db: firebase.firestore(),
       message: "",
-      messages: [],
     };
+  },
+  computed: {
+    ...mapGetters({ user: "getUser", messages: "getMessages" }),
   },
   methods: {
     logout() {
@@ -43,27 +45,20 @@ export default {
     },
     async sendMessage() {
       const messageInfo = {
-        userUID: this.user.uid,
-        displayName: this.user.displayName,
-        photoURL: this.user.photoURL,
+        userUid: this.user.uid,
         text: this.message,
         createdAt: Date.now(),
       };
-      await this.db.collection("messages").add(messageInfo);
+      this.$store.dispatch("sendMessage", messageInfo)
       this.message = "";
       this.$refs["scrollable"].scrollIntoView({ arg: { behavior: "smooth" } });
     },
-    sentOrReceived(userUID) {
-      return userUID === this.user.uid ? "sent" : "received";
+    sentOrReceived(userUid) {
+      return userUid === this.user.uid ? "sent" : "received";
     },
   },
   mounted() {
-    this.db
-      .collection("messages")
-      .orderBy("createdAt")
-      .onSnapshot((querySnap) => {
-        this.messages = querySnap.docs.map((doc) => doc.data());
-      });
+    this.$store.dispatch("fetchChatByUid", this.$route.params.chatUid);
   },
 };
 </script>

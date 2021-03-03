@@ -5,12 +5,12 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/ch/:chatUid",
     name: "Chat",
     component: () =>
       import(/* webpackChunkName: "chat" */ "../components/Chat.vue"),
     meta: {
-      requireAuth: true,
+      requiresAuth: true,
     },
   },
   {
@@ -40,7 +40,7 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "contacts" */ "../views/ContactsView.vue"),
     meta: {
-      requireAuth: true,
+      requiresAuth: true,
     },
   },
 ];
