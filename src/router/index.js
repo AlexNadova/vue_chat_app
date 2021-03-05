@@ -6,9 +6,9 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/ch/:chatUid",
-    name: "Chat",
+    name: "ChatView",
     component: () =>
-      import(/* webpackChunkName: "chat" */ "../components/Chat.vue"),
+      import(/* webpackChunkName: "chat" */ "../views/ChatView.vue"),
     meta: {
       requiresAuth: true,
     },

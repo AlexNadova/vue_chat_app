@@ -15,7 +15,14 @@ export default {
 </script>
 
 <style lang="less">
-body {
-  background-color: #313131;
+body,
+html,
+#app {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 </style>

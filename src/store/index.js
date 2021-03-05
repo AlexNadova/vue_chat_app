@@ -12,7 +12,7 @@ export default new Vuex.Store({
     contacts: [],
     chats: [],
     messages: [],
-    chatUid: "",
+    chosenChat: {},
   },
   getters: {
     getUser(state) {
@@ -27,8 +27,8 @@ export default new Vuex.Store({
     getMessages(state) {
       return state.messages;
     },
-    getChatUid(state) {
-      return state.chatUid;
+    getchosenChat(state) {
+      return state.chosenChat;
     },
   },
   mutations: {
@@ -44,8 +44,27 @@ export default new Vuex.Store({
     setMessages(state, messages) {
       state.messages = messages;
     },
-    setChatUid(state, chatUid) {
-      state.chatUid = chatUid;
+    async setChosenChat(state, chatUid) {
+      let chosenChat = {};
+      for (let chat of state.chats) {
+        if (chat.uid === chatUid) {
+          chosenChat = chat;
+          break;
+        }
+      }
+      if (chosenChat === {}) {
+        chosenChat = state.chats[0];
+      }
+      chosenChat.usersInfo = {};
+      for (const userUid of chosenChat.users) {
+        const result = await userCollection.doc(userUid).get();
+        const foundUser = { ...result.data() };
+        chosenChat.usersInfo[userUid] = {
+          name: foundUser.fname + " " + foundUser.lname,
+          photoUrl: foundUser.photoUrl,
+        };
+      }
+      state.chosenChat = chosenChat;
     },
   },
   actions: {
@@ -54,6 +73,7 @@ export default new Vuex.Store({
         .signInWithEmailAndPassword(form.email, form.password)
         .catch((e) => console.error(e));
       dispatch("fetchUser", user);
+      router.push("/contacts");
     },
     async loginGoogle({ dispatch }) {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -71,8 +91,6 @@ export default new Vuex.Store({
         .get()
         .catch((e) => console.error(e));
       commit("setUser", { ...user.data(), uid: userInfo.uid });
-      //change route to chat
-      router.push("/contacts");
     },
     async register({ dispatch }, form) {
       const { user } = await auth
@@ -84,10 +102,12 @@ export default new Vuex.Store({
         address: form.address,
         county: form.country,
         city: form.city,
+        photoUrl: "user.webp",
       });
 
       // fetch user profile and set in state
       dispatch("fetchUser", user);
+      router.push("/contacts");
     },
     async fetchContacts({ commit }) {
       let contacts = [];
@@ -105,14 +125,13 @@ export default new Vuex.Store({
         .get()
         .then((result) => {
           result.forEach((chat) => {
-            chats.push({ ...chat.data(), chatUid: chat.id });
+            chats.push({ ...chat.data(), uid: chat.id });
           });
           commit("setChats", chats);
         });
     },
-    async fetchChatByUid({ commit }, chatUid) {
+    async fetchMessagesByChatUid({ commit }, chatUid) {
       let messages = [];
-      commit("setChatUid", chatUid);
       await chatCollection
         .doc(chatUid)
         .collection("messages")
@@ -122,11 +141,12 @@ export default new Vuex.Store({
             return { ...msg.data(), uid: msg.id };
           });
           commit("setMessages", messages);
+          commit("setChosenChat", chatUid);
         });
     },
     sendMessage({ state }, message) {
       chatCollection
-        .doc(state.chatUid)
+        .doc(state.chosenChat.uid)
         .collection("messages")
         .add(message);
     },

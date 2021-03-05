@@ -1,18 +1,15 @@
 <template>
   <div class="wrapper">
-    Chat component
-    <header>
-      <h1>{{ $route.params.chatUid }}</h1>
-      <button @click="logout">Logout</button>
-    </header>
     <section>
       <main>
+        <chat-header :title="chatInfo.title"></chat-header>
         <div
           v-for="(msg, index) in messages"
           v-bind:key="'index-' + index"
           :class="['message', sentOrReceived(msg.userUid)]"
+          :title="chatInfo.usersInfo[msg.userUid].name"
         >
-          <img src="" alt="" />
+          <img :src="chatInfo.usersInfo[msg.userUid].photoUrl" />
           <p>{{ msg.text }}</p>
         </div>
         <div ref="scrollable"></div>
@@ -26,22 +23,32 @@
 </template>
 
 <script>
-import firebase from "firebase";
 import { mapGetters } from "vuex";
+import ChatHeader from "./ChatHeader.vue";
 
 export default {
+  name: "Chat",
+  props: {
+    messages: Array,
+    chatInfo: Object,
+  },
+  components: {
+    ChatHeader,
+  },
   data() {
     return {
-      db: firebase.firestore(),
       message: "",
     };
   },
   computed: {
-    ...mapGetters({ user: "getUser", messages: "getMessages" }),
+    ...mapGetters({ user: "getUser" }),
   },
   methods: {
-    logout() {
-      firebase.auth().signOut();
+    // logout() {
+    //   firebase.auth().signOut();
+    // },
+    getImage(userUid) {
+      return require("../assets/" + this.chatInfo.usersInfo[userUid].name);
     },
     async sendMessage() {
       const messageInfo = {
@@ -49,7 +56,7 @@ export default {
         text: this.message,
         createdAt: Date.now(),
       };
-      this.$store.dispatch("sendMessage", messageInfo)
+      this.$store.dispatch("sendMessage", messageInfo);
       this.message = "";
       this.$refs["scrollable"].scrollIntoView({ arg: { behavior: "smooth" } });
     },
@@ -57,46 +64,19 @@ export default {
       return userUid === this.user.uid ? "sent" : "received";
     },
   },
-  mounted() {
-    this.$store.dispatch("fetchChatByUid", this.$route.params.chatUid);
-  },
 };
 </script>
 
 <style lang="less">
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-}
 .wrapper {
   text-align: center;
-  max-width: 728px;
-  margin: 0 auto;
-  header {
-    background-color: #181717;
-    height: 10vh;
-    min-height: 50px;
-    color: white;
-    position: fixed;
-    width: 100%;
-    max-width: 728px;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 99;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  section {
+  width: -moz-available;
+  > section {
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 100vh;
-    background-color: rgb(40, 37, 53);
-    main {
+    > main {
       padding: 10px;
       height: 75vh;
       margin: 10vh 0 10vh;
@@ -113,60 +93,45 @@ body {
         background: #6649b8;
       }
     }
-    form {
-      height: 10vh;
+    > form {
+      height: 60px;
       position: fixed;
       bottom: 0;
-      background-color: rgb(24, 23, 23);
-      width: 100%;
-      max-width: 728px;
       display: flex;
-      font-size: 1.5rem;
-      button {
-        width: 20%;
-        background-color: rgb(56, 56, 143);
+      width: -moz-available; /* For Mozzila */
+      width: -webkit-fill-available; /* For Chrome */
+      width: stretch;
+      padding: 20px 35px;
+      > button {
+        width: 10%;
+        background-color: #0b93f6;
+        background-color: #0b93f6;
+        border: none;
+        border-radius: 40px;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        font-size: 1.25rem;
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       }
-      input {
+      > input {
         line-height: 1.5;
         width: 100%;
-        font-size: 1.5rem;
-        background: rgb(58, 58, 58);
-        color: white;
+        background: #f3f3f3;
+        border: 1px solid #ccc;
+        border-radius: 40px;
+        padding: 0 30px;
+        margin-right: 15px;
+        font-size: 20px;
         outline: none;
-        border: none;
-        padding: 0 10px;
       }
     }
-  }
-  button {
-    background-color: #282c34; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    cursor: pointer;
-    font-size: 1.25rem;
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-  button,
-  input {
-    color: #fff;
-    border: none;
-  }
-  p {
-    max-width: 500px;
-    margin-bottom: 12px;
-    line-height: 24px;
-    padding: 10px 20px;
-    border-radius: 25px;
-    position: relative;
-    color: white;
-    text-align: center;
   }
   .message {
     display: flex;
