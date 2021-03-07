@@ -36,7 +36,7 @@ const routes = [
   },
   {
     path: "/contacts",
-    name: "Contacts",
+    name: "ContactsView",
     component: () =>
       import(/* webpackChunkName: "contacts" */ "../views/ContactsView.vue"),
     meta: {

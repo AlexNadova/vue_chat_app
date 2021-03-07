@@ -24,15 +24,13 @@ export default {
   },
   watch: {
     $route() {
-      this.$store.dispatch(
-        "fetchMessagesByChatUid",
-        this.$route.params.chatUid
-      );
+      this.$store.dispatch("chooseChat", this.$route.params.chatUid);
     },
   },
-  created() {
+  mounted() {
     this.$store.dispatch("fetchUsersChats");
-    this.$store.dispatch("fetchMessagesByChatUid", this.$route.params.chatUid);
+    this.$store.dispatch("chooseChat", this.$route.params.chatUid);
+    // this.$store.dispatch("fetchMessagesByChatUid", this.$route.params.chatUid);
   },
 };
 </script>

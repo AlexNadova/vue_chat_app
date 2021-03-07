@@ -10,6 +10,7 @@ export default new Vuex.Store({
   state: {
     user: {},
     contacts: [],
+    chosenContact: {},
     chats: [],
     messages: [],
     chosenChat: {},
@@ -20,6 +21,9 @@ export default new Vuex.Store({
     },
     getContacts(state) {
       return state.contacts;
+    },
+    getChosenContact(state) {
+      return state.chosenContact;
     },
     getChats(state) {
       return state.chats;
@@ -38,32 +42,16 @@ export default new Vuex.Store({
     setContacts(state, contacts) {
       state.contacts = contacts;
     },
+    setChosenContact(state, contact) {
+      state.chosenContact = contact;
+    },
     setChats(state, chats) {
       state.chats = chats;
     },
     setMessages(state, messages) {
       state.messages = messages;
     },
-    async setChosenChat(state, chatUid) {
-      let chosenChat = {};
-      for (let chat of state.chats) {
-        if (chat.uid === chatUid) {
-          chosenChat = chat;
-          break;
-        }
-      }
-      if (chosenChat === {}) {
-        chosenChat = state.chats[0];
-      }
-      chosenChat.usersInfo = {};
-      for (const userUid of chosenChat.users) {
-        const result = await userCollection.doc(userUid).get();
-        const foundUser = { ...result.data() };
-        chosenChat.usersInfo[userUid] = {
-          name: foundUser.fname + " " + foundUser.lname,
-          photoUrl: foundUser.photoUrl,
-        };
-      }
+    async setChosenChat(state, chosenChat) {
       state.chosenChat = chosenChat;
     },
   },
@@ -112,11 +100,64 @@ export default new Vuex.Store({
     async fetchContacts({ commit }) {
       let contacts = [];
       await userCollection.onSnapshot((querySnap) => {
-        contacts = querySnap.docs.map((doc) => {
-          return { ...doc.data(), uid: doc.id };
-        });
+        for (let doc of querySnap.docs) {
+          if (doc.id !== auth.currentUser.uid)
+            contacts.push({ uid: doc.id, ...doc.data() });
+        }
+        // contacts = querySnap.docs.map((doc) => {
+        //   return { ...doc.data(), uid: doc.id };
+        // });
         commit("setContacts", contacts);
       });
+    },
+    async chooseContact({ state, dispatch, commit }, index) {
+      await dispatch("fetchUsersChats");
+      let contact = state.contacts[index];
+      const chats = state.chats;
+      let chatsWithContact = [];
+      for (let chat of chats) {
+        for (let user of chat.users) {
+          if (user === contact.uid) {
+            chatsWithContact.push(chat);
+            break;
+          }
+        }
+      }
+      contact.chats = chatsWithContact;
+      commit("setChosenContact", contact);
+    },
+    async createGroupChat({ state }, contacts) {
+      let newChat = {};
+      if (contacts.length === 1) {
+        let chatFound = false;
+        for (let chat of contacts[0].chats) {
+          if (chat.users.length === 2) {
+            router.push("/ch/" + chat.uid);
+            chatFound = true;
+            break;
+          }
+        }
+        if (!chatFound) {
+          newChat = await chatCollection.add({
+            title: "Private chat: " + contacts[0].fname,
+            users: [auth.currentUser.uid, contacts[0].uid],
+          });
+          router.push("/ch/" + newChat.id);
+        }
+      } else if (contacts.length > 1) {
+        let users = [state.user.fname];
+        let contactsUids = [auth.currentUser.uid];
+        for (let contact of contacts) {
+          users.push(contact.fname);
+          contactsUids.push(contact.uid);
+        }
+        const title = users.join(", ");
+        newChat = await chatCollection.add({
+          title: title,
+          users: contactsUids,
+        });
+        router.push("/ch/" + newChat.id);
+      }
     },
     async fetchUsersChats({ commit }) {
       let chats = [];
@@ -136,13 +177,27 @@ export default new Vuex.Store({
         .doc(chatUid)
         .collection("messages")
         .orderBy("createdAt")
-        .onSnapshot((querySnap) => {
+        .onSnapshot(async (querySnap) => {
           messages = querySnap.docs.map((msg) => {
             return { ...msg.data(), uid: msg.id };
           });
           commit("setMessages", messages);
-          commit("setChosenChat", chatUid);
         });
+    },
+    async chooseChat({ commit, dispatch }, chatUid) {
+      const fetchChat = await chatCollection.doc(chatUid).get();
+      const chosenChat = { uid: fetchChat.id, ...fetchChat.data() };
+      chosenChat.usersInfo = {};
+      for (const userUid of chosenChat.users) {
+        const result = await userCollection.doc(userUid).get();
+        const foundUser = { ...result.data() };
+        chosenChat.usersInfo[userUid] = {
+          name: foundUser.fname + " " + foundUser.lname,
+          photoUrl: "/img/users/" + foundUser.photoUrl,
+        };
+      }
+      commit("setChosenChat", chosenChat);
+      dispatch("fetchMessagesByChatUid", chatUid);
     },
     sendMessage({ state }, message) {
       chatCollection

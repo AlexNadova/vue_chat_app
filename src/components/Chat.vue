@@ -47,9 +47,6 @@ export default {
     // logout() {
     //   firebase.auth().signOut();
     // },
-    getImage(userUid) {
-      return require("../assets/" + this.chatInfo.usersInfo[userUid].name);
-    },
     async sendMessage() {
       const messageInfo = {
         userUid: this.user.uid,
@@ -70,7 +67,9 @@ export default {
 <style lang="less">
 .wrapper {
   text-align: center;
-  width: -moz-available;
+  width: -moz-available; /* For Mozzila */
+  width: -webkit-fill-available; /* For Chrome */
+  width: stretch;
   > section {
     display: flex;
     flex-direction: column;
