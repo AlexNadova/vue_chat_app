@@ -1,8 +1,9 @@
 <template>
   <div class="contact">
+    <chat-header></chat-header>
     <div class="contact__info">
       <h1>{{ contact.fname }} {{ contact.lname }}</h1>
-      <img :src="'/img/users/' + contact.photoUrl" />
+      <img :src="contact.photoUrl" />
       <p>{{ contact.address }}, {{ contact.city }}</p>
       <p>{{ contact.country }}</p>
       <button @click="goToChat(contact)">Go to chat</button>
@@ -27,10 +28,14 @@
 </template>
 
 <script>
+import ChatHeader from "./ChatHeader.vue";
 export default {
   name: "Contact",
   props: {
     contact: Object,
+  },
+  components: {
+    ChatHeader,
   },
   methods: {
     goToChat(contact) {

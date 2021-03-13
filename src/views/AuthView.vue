@@ -41,12 +41,11 @@ export default {
     font-size: 15pt;
     padding: 15px 5px;
     border-radius: 5px;
-    border: none;
+    border: solid 1px #ccc;
   }
   p {
-    color: white;
     a {
-      color: white;
+      color: #7562ff;
     }
   }
 }

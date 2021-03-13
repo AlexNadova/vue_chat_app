@@ -2,7 +2,7 @@
   <div class="wrapper">
     <section>
       <main>
-        <chat-header :title="chatInfo.title"></chat-header>
+        <chat-header :title="chatInfo.title" :chat="chatInfo.uid"></chat-header>
         <div
           v-for="(msg, index) in messages"
           v-bind:key="'index-' + index"
@@ -44,9 +44,6 @@ export default {
     ...mapGetters({ user: "getUser" }),
   },
   methods: {
-    // logout() {
-    //   firebase.auth().signOut();
-    // },
     async sendMessage() {
       const messageInfo = {
         userUid: this.user.uid,

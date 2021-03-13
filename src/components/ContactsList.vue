@@ -1,8 +1,5 @@
 <template>
   <div class="contacts-list__container">
-    <router-link to="/profile">Profile</router-link>
-    <router-link to="/contacts">Contacts</router-link>
-    <!-- <button @click="logout">Logout</button> -->
     <ul class="contacts-list__list">
       <li
         v-for="(contact, index) in contacts"

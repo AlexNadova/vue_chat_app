@@ -2,6 +2,18 @@
   <header>
     <header>
       <h1>{{ title }}</h1>
+      <router-link to="/contacts">Contacts</router-link>
+      <router-link to="/profile">Profile</router-link>
+      <router-link
+        v-if="chat"
+        :to="{ name: 'ChatView', params: { chatUid: chat.uid } }"
+      >
+        Chats
+      </router-link>
+      <router-link v-else :to="{ name: 'ChatView' }">
+        Chats
+      </router-link>
+      <span @click="logout">Logout</span>
     </header>
   </header>
 </template>
@@ -11,6 +23,12 @@ export default {
   name: "ChatHeader",
   props: {
     title: String,
+    chat: Object,
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("logout");
+    },
   },
 };
 </script>

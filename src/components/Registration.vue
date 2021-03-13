@@ -1,5 +1,5 @@
 <template>
-  <div class="registration-component">
+  <div class="login-container">
     <form v-on:submit.prevent="register">
       <input
         type="text"

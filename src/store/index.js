@@ -65,13 +65,22 @@ export default new Vuex.Store({
     },
     async loginGoogle({ dispatch }) {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithRedirect(provider);
-      auth
-        .getRedirectResult()
-        .then((result) => {
-          dispatch("fetchUser", result);
-        })
-        .catch((error) => console.error(error));
+      auth.signInWithPopup(provider).then(async (result) => {
+        const user = await userCollection
+          .doc(result.user.uid)
+          .get()
+          .catch((e) => console.error(e));
+        if (!user.data()) {
+          const displayName = result.user.displayName;
+          await userCollection.doc(result.user.uid).set({
+            fname: displayName.substring(0, displayName.indexOf(" ") + 1),
+            lname: displayName.substring(displayName.indexOf(" ") + 1),
+            photoUrl: result.user.photoURL,
+          });
+          dispatch("fetchUser", result.user);
+        }
+        router.push("/contacts");
+      });
     },
     async fetchUser({ commit }, userInfo) {
       const user = await userCollection
@@ -88,7 +97,7 @@ export default new Vuex.Store({
         fname: form.fname,
         lname: form.lname,
         address: form.address,
-        county: form.country,
+        country: form.country,
         city: form.city,
         photoUrl: "user.webp",
       });
@@ -97,16 +106,17 @@ export default new Vuex.Store({
       dispatch("fetchUser", user);
       router.push("/contacts");
     },
+    logout() {
+      auth.signOut();
+      router.push("/auth/login");
+    },
     async fetchContacts({ commit }) {
       let contacts = [];
-      await userCollection.onSnapshot((querySnap) => {
-        for (let doc of querySnap.docs) {
-          if (doc.id !== auth.currentUser.uid)
-            contacts.push({ uid: doc.id, ...doc.data() });
-        }
-        // contacts = querySnap.docs.map((doc) => {
-        //   return { ...doc.data(), uid: doc.id };
-        // });
+      await userCollection.get().then((result) => {
+        result.forEach((user) => {
+          if (user.id !== auth.currentUser.uid)
+            contacts.push({ uid: user.id, ...user.data() });
+        });
         commit("setContacts", contacts);
       });
     },
@@ -193,7 +203,7 @@ export default new Vuex.Store({
         const foundUser = { ...result.data() };
         chosenChat.usersInfo[userUid] = {
           name: foundUser.fname + " " + foundUser.lname,
-          photoUrl: "/img/users/" + foundUser.photoUrl,
+          photoUrl: foundUser.photoUrl,
         };
       }
       commit("setChosenChat", chosenChat);
@@ -204,6 +214,15 @@ export default new Vuex.Store({
         .doc(state.chosenChat.uid)
         .collection("messages")
         .add(message);
+    },
+    deleteAccount() {
+      const user = auth.currentUser;
+      userCollection
+        .doc(user.uid)
+        .delete()
+        .then(() => {
+          user.delete().then(router.push("/auth/login"));
+        });
     },
   },
 });
