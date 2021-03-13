@@ -224,5 +224,17 @@ export default new Vuex.Store({
           user.delete().then(router.push("/auth/login"));
         });
     },
+    async updateUser({ commit }, form) {
+      await userCollection
+        .doc(auth.currentUser.uid)
+        .update({
+          fname: form.fname,
+          lname: form.lname,
+          address: form.address,
+          city: form.city,
+          country: form.country,
+        })
+        .then(commit("setUser", form));
+    },
   },
 });
