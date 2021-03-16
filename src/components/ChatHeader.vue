@@ -6,7 +6,7 @@
       <router-link to="/profile">Profile</router-link>
       <router-link
         v-if="chat"
-        :to="{ name: 'ChatView', params: { chatUid: chat.uid } }"
+        :to="{ name: 'ChatView', params: { chatUid: chat } }"
       >
         Chats
       </router-link>
@@ -23,7 +23,7 @@ export default {
   name: "ChatHeader",
   props: {
     title: String,
-    chat: Object,
+    chat: String,
   },
   methods: {
     logout() {
@@ -42,9 +42,17 @@ header {
   top: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   z-index: 99;
   padding: 10px;
   box-sizing: border-box;
+  & a,
+  & span {
+    text-decoration: none;
+    cursor: pointer;
+    padding: 5px 15px;
+    &:hover {
+      color: #0b93f6;
+    }
+  }
 }
 </style>

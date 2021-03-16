@@ -8,7 +8,7 @@
         v-model="form.email"
       />
       <input
-        type="text"
+        type="password"
         name="password"
         placeholder="password"
         v-model="form.password"

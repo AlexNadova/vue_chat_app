@@ -1,8 +1,5 @@
 <template>
   <div class="chat-list__container">
-    <router-link to="/profile">Profile</router-link>
-    <router-link to="/contacts">Contacts</router-link>
-    <!-- <button @click="logout">Logout</button> -->
     <ul class="chat-list__list">
       <li v-for="(chat, index) in chats" :key="index" class="chat-list__item">
         <router-link :to="{ name: 'ChatView', params: { chatUid: chat.uid } }">

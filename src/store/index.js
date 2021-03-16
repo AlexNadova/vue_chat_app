@@ -99,7 +99,7 @@ export default new Vuex.Store({
         address: form.address,
         country: form.country,
         city: form.city,
-        photoUrl: "user.webp",
+        photoUrl: "/img/users/user.webp",
       });
 
       // fetch user profile and set in state
@@ -149,7 +149,8 @@ export default new Vuex.Store({
         }
         if (!chatFound) {
           newChat = await chatCollection.add({
-            title: "Private chat: " + contacts[0].fname,
+            title:
+              "Private chat: " + contacts[0].fname + ", " + state.user.fname,
             users: [auth.currentUser.uid, contacts[0].uid],
           });
           router.push("/ch/" + newChat.id);
@@ -224,7 +225,7 @@ export default new Vuex.Store({
           user.delete().then(router.push("/auth/login"));
         });
     },
-    async updateUser({ commit }, form) {
+    async updateUser({ dispatch }, form) {
       await userCollection
         .doc(auth.currentUser.uid)
         .update({
@@ -234,7 +235,7 @@ export default new Vuex.Store({
           city: form.city,
           country: form.country,
         })
-        .then(commit("setUser", form));
+        .then(dispatch("fetchUser", { uid: auth.currentUser.uid }));
     },
   },
 });

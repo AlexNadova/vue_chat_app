@@ -1,17 +1,19 @@
 <template>
   <div class="profile__container">
     <chat-header></chat-header>
-    <h1>{{ user.fname }} {{ user.lname }}</h1>
-    <img :src="user.photoUrl" />
-    <p>{{ user.address }}, {{ user.city }}</p>
-    <p>{{ user.country }}</p>
-    <button @click="changeModalVisibility(true)">Edit</button>
-    <button @click="deleteAccount">Delete account</button>
-    <edit-profile-modal
-      v-if="showModal"
-      @changeModalVisibility="changeModalVisibility"
-      :user="user"
-    ></edit-profile-modal>
+    <div class="profile__card">
+      <h1>{{ user.fname }} {{ user.lname }}</h1>
+      <img :src="user.photoUrl" />
+      <p>{{ user.address }}, {{ user.city }}</p>
+      <p>{{ user.country }}</p>
+      <button @click="changeModalVisibility(true)">Edit</button>
+      <button @click="deleteAccount">Delete account</button>
+      <edit-profile-modal
+        v-if="showModal"
+        @changeModalVisibility="changeModalVisibility"
+        :user="user"
+      ></edit-profile-modal>
+    </div>
   </div>
 </template>
 <script>
@@ -43,7 +45,13 @@ export default {
 };
 </script>
 <style lang="less">
-.profile__container {
-  height: 100%;
+.profile {
+  &__container {
+    height: 100%;
+  }
+  &__card {
+    margin-top: 70px;
+    text-align: center;
+  }
 }
 </style>

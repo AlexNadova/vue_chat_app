@@ -60,6 +60,7 @@ export default {
     width: -moz-available; /* For Mozzila */
     width: -webkit-fill-available; /* For Chrome */
     width: stretch;
+    margin-top: 70px;
     & > img {
       border-radius: 50%;
     }
